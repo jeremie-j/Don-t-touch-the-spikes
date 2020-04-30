@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <title>Spikes !</title>
+</head>
+<meta name="viewport" content="width=auto, user-scalable=no">
+<style>@font-face {
+    font-family: 'Venus';
+    src: url('venus rising rg.ttf');
+}
+
+
+.fullscreen{
+    height: 80vh;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 0 1fr 10% ;
+}
+
+
+#jeu {
+    grid-column-start: 2;
+    grid-row-start: 2;
+}
+
+.centered{
+    font-family: "Venus";
+    font-size: 4vh;
+    color: #FBFCFC ;
+    display: flex;
+    justify-content: center;
+}
+
+</style>
+<body style="background-color:#58D68D;" id ="grid">
+
+    <div class="fullscreen"  id="jeu" >
+        <p class="centered">Don't touch the spikes !</p>
+        <p class="centered">
+    <canvas id="myCanvas" class="centered" width="800" height="1000" style="display: block; " ></canvas>  
+    <script>
+                var canvas = document.getElementById("myCanvas");
+                var ctx = canvas.getContext("2d");
+                var xtriangle;
+                var ytriangle;
+                var xpic;
+                var ypic;
+
+                var px = 185*2,py = 210*2,vx = 2.5*2,vy = 0,ay = 0.2*2;
+                var score = 0;
+                var diffnbPic = 2;
+                var posPic;
+                var statutjeu = 1;
+
+                
+
+                function draw(){
+                    
+                    if (statutjeu == 1){
+                        Menu()
+                    }
+
+                    if (statutjeu == 2){
+                        
+                        ctx.beginPath();
+                        ctx.rect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = "#FBFCFC";
+                        ctx.fill();
+                        ctx.closePath();
+                        Decor();
+                        player();
+                        Obstacles();
+
+                        if (statutjeu == 3){
+                        
+                        ctx.beginPath();
+                        ctx.rect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = "#E74C3C";
+                        ctx.fill();
+                        ctx.closePath();
+
+                        ctx.fillStyle = "#FBFCFC";
+                        ctx.textAlign = 'center';
+                        ctx.font = '40px venus';
+                        ctx.fillText("Perdu", 200*2, 150*2);
+                        ctx.fillText("score : " + score , 200*2, 320*2);}}
+                }
+
+                function Menu(){
+
+                    ctx.beginPath();
+                    ctx.rect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = "#F0F3F4";
+                    ctx.fill();
+                    ctx.closePath();
+
+                    Decor();
+
+                    ctx.fillStyle = "#BFC9CA";
+                    ctx.textAlign = 'center';
+                    ctx.font = '40px venus';
+                    ctx.fillText("Pour commencer,", 200*2, 150*2);
+                    ctx.fillText("appuyez sur", 200*2, 320*2);
+                    ctx.fillText("espace", 200*2, 360*2);
+                    ctx.beginPath();
+                    roundRect(px, py, 30*2, 30*2,6*2);
+                    ctx.fillStyle = "#BFC9CA";
+                    ctx.fill();
+                    ctx.closePath();
+                  
+                }
+
+                function player(){
+                    
+                    ctx.beginPath();
+                    roundRect(px, py, 30*2, 30*2,6*2);
+                    ctx.fillStyle = "#F1C40F";
+                    ctx.fill();
+                    ctx.closePath();
+
+                    px += vx; 
+                    vy += ay;
+                    py += vy;
+
+                    if ( py < 15*2  || py > 465*2){
+                        statutjeu = 3;
+                    }
+                    
+                    if (px > 400*2 - 30*2 || px < 0){
+                    if ( px > 400*2 - 30*2){
+                        xpic = -20*2;
+                    }else if (px < 0){
+                        xpic = 420*2;
+                    }
+                    if (score < 100 && vx > 0){
+                        vx = vx + 0.1*2;
+                    }
+                        if ( score % 5  == 0  && score >= 5 && diffnbPic < 8){
+                        diffnbPic++;
+                    }
+                    
+                    if (score > 0){
+                        
+                    for (let i = 0; i < diffnbPic; i++) {
+                    if (py >= posPic[i] * 40*2 - 20*2 && py <= posPic[i] * 40*2 + 10*2 || py + 30*2 >= posPic[i] * 40*2 - 20*2 && py + 30*2 <= posPic[i] * 40*2 + 10*2){
+                        statutjeu = 3;
+                        score += -1;
+                        
+                    }
+                    }
+                    }
+                    RNG();
+                    vx = -vx;
+                    score += 1;
+                    
+                    }
+                }
+                
+
+                function Obstacles(){
+
+                    //Gauche
+                    
+                    if (vx < 0){
+                        for (let i = 0; i < diffnbPic   ; i++) {
+            
+                        if ( xpic == 0){
+                        xpic = 0;
+                        
+                        }else{
+                            
+                        xpic++;
+                        }
+                        ypic = 20*2;
+                        
+                        ypic += 40*2 * posPic[i] - 40*2 ;
+                        triangle(xpic,ypic,xpic + 20*2,ypic + 15*2,xpic,ypic + 30*2,"#58D68D")
+                        }
+                    }
+                    
+                    //Droite
+                    if (vx > 0 && score > 1) {
+                        
+                        for (var i = 0; i < diffnbPic ; i++) {
+                    
+                        if ( xpic == 400*2){
+                        xpic = 400*2;
+                        }else{
+                        xpic = xpic - 1;
+                        }
+                        
+                        ypic = 20*2;
+                        
+                        ypic += 40*2 * posPic[i] - 40*2 ;
+                        
+
+                        triangle(xpic,ypic,xpic - 20*2,ypic + 15*2,xpic,ypic + 30*2,"#58D68D");
+                        ctx.closePath();
+                        }
+                    }
+                    }
+
+
+                function Decor(){
+                    
+                    xtriangle = 25*2;
+                    ytriangle = 500*2;
+
+                    for (var i = 0; i < 9; i++) {
+                        triangle(xtriangle,ytriangle,xtriangle+15*2,ytriangle-20*2,xtriangle+30*2,ytriangle,"#58D68D");
+                        xtriangle += 40*2;}
+                        
+                    ytriangle = 0*2;
+                    xtriangle = 25*2;    
+                    
+                    for (var i = 0; i < 9; i++) {
+                        triangle(xtriangle,ytriangle,xtriangle+15*2,ytriangle+20*2,xtriangle+30*2,ytriangle,"#58D68D");
+                        xtriangle += 40*2;}
+                
+                    if (statutjeu == 2){ 
+                        ctx.beginPath();
+                        ctx.arc(200*2, 250*2, 80*2, 0, Math.PI*2);
+                        ctx.fillStyle = "#1A5276";
+                        ctx.fill();
+                        ctx.closePath();
+                        
+                        ctx.font = '120px venus';
+                        ctx.fillStyle = "#58D68D";
+                        ctx.textAlign = 'center';
+                        ctx.fillText(score, 200*2, 270*2);
+                        }
+                }   
+                function roundRect(x, y, w, h, radius)
+                {
+                var r = x + w;
+                var b = y + h;
+                ctx.beginPath();
+                ctx.moveTo(x+radius, y);
+                ctx.lineTo(r-radius, y);
+                ctx.quadraticCurveTo(r, y, r, y+radius);
+                ctx.lineTo(r, y+h-radius);
+                ctx.quadraticCurveTo(r, b, r-radius, b);
+                ctx.lineTo(x+radius, b);
+                ctx.quadraticCurveTo(x, b, x, b-radius);
+                ctx.lineTo(x, y+radius);
+                ctx.quadraticCurveTo(x, y, x+radius, y);
+                }
+        
+                function RNG(){
+
+                posPic = [1,2,3,4,5,6,7,8,9,10,11,12];
+                shuffle(posPic);
+                resize(posPic,diffnbPic,12)
+                }
+                
+                document.addEventListener("keydown", keyDownHandler, false);
+
+                function keyDownHandler(e) {
+                    if(e.keyCode == 32) {
+                    if (statutjeu == 1){
+                        statutjeu = 2;
+                        vy = -5*2;}
+                    if (statutjeu == 2){
+                        vy = -5*2;}
+                    if (statutjeu == 3){
+                        score = 0;
+                        px = 185*2;
+                        py = 210*2;
+                        vx = 3*2;
+                        diffnbPic = 2;
+                        statutjeu = 1;}
+}
+                }
+                document.body.onmousedown = function() { 
+                    if (statutjeu == 1){
+                        statutjeu = 2;
+                        vy = -5*2;}
+                    if (statutjeu == 2){
+                        vy = -5*2;}
+                    if (statutjeu == 3){
+                        score = 0;
+                        px = 185*2;
+                        py = 210*2;
+                        vx = 3*2;
+                        diffnbPic = 2;
+                        statutjeu = 1;}
+}
+                function resize(arr, newSize, defaultValue) {
+                while(newSize > arr.length)
+                    arr.push(defaultValue);
+                arr.length = newSize;
+}
+
+function triangle(x,y,x2,y2,x3,y3,couleur){
+                        ctx.beginPath();
+                        ctx.moveTo(x,y);
+                        ctx.lineTo(x2,y2);
+                        ctx.lineTo(x3,y3);
+                        ctx.fillStyle = couleur;
+                        ctx.fill();
+                        ctx.closePath();
+}
+                function shuffle(array) {
+  array.sort(() => Math.random() - 0.5);
+}
+        setInterval(draw, 10);
+    </script>
+    </div>
+</p>
+</body>
+</html>
